@@ -1,0 +1,423 @@
+{
+    "copyright": "Copyright 2026 MLB Advanced Media, L.P.  Use of any content on this page acknowledges agreement to the terms posted here http://gdx.mlb.com/components/copyright.txt",
+    "teams": [
+        {
+            "springLeague": {
+                "id": 115,
+                "name": "Grapefruit League",
+                "link": "/api/v1/league/115",
+                "abbreviation": "GL"
+            },
+            "allStarStatus": "N",
+            "id": 146,
+            "name": "Miami Marlins",
+            "link": "/api/v1/teams/146",
+            "season": 2026,
+            "venue": {
+                "id": 4169,
+                "name": "loanDepot park",
+                "link": "/api/v1/venues/4169"
+            },
+            "springVenue": {
+                "id": 2520,
+                "link": "/api/v1/venues/2520"
+            },
+            "teamCode": "mia",
+            "fileCode": "mia",
+            "abbreviation": "MIA",
+            "teamName": "Marlins",
+            "locationName": "Miami",
+            "firstYearOfPlay": "1991",
+            "league": {
+                "id": 104,
+                "name": "National League",
+                "link": "/api/v1/league/104"
+            },
+            "division": {
+                "id": 204,
+                "name": "National League East",
+                "link": "/api/v1/divisions/204"
+            },
+            "sport": {
+                "id": 1,
+                "link": "/api/v1/sports/1",
+                "name": "Major League Baseball"
+            },
+            "shortName": "Miami",
+            "franchiseName": "Miami",
+            "clubName": "Marlins",
+            "active": true
+        },
+        {
+            "allStarStatus": "F",
+            "id": 385,
+            "name": "Miami Marlins Prospects",
+            "link": "/api/v1/teams/385",
+            "season": 2026,
+            "venue": {
+                "id": 2520,
+                "name": "Roger Dean Chevrolet Stadium",
+                "link": "/api/v1/venues/2520"
+            },
+            "teamCode": "mmp",
+            "fileCode": "t385",
+            "abbreviation": "MMP",
+            "teamName": "Marlins Prospects",
+            "locationName": "Jupiter",
+            "firstYearOfPlay": "2001",
+            "league": {
+                "id": 590,
+                "name": "Futures Game",
+                "link": "/api/v1/league/590"
+            },
+            "sport": {
+                "id": 21,
+                "link": "/api/v1/sports/21",
+                "name": "Minor League Baseball"
+            },
+            "shortName": "Marlins Prospects",
+            "parentOrgName": "Miami Marlins",
+            "parentOrgId": 146,
+            "franchiseName": "Marlins Prospects",
+            "clubName": "Marlins Prospects",
+            "active": true
+        },
+        {
+            "allStarStatus": "N",
+            "id": 467,
+            "name": "FCL Marlins",
+            "link": "/api/v1/teams/467",
+            "season": 2026,
+            "venue": {
+                "id": 6083,
+                "name": "Roger Dean Stadium Complex (MIA)",
+                "link": "/api/v1/venues/6083"
+            },
+            "teamCode": "fma",
+            "fileCode": "t467",
+            "abbreviation": "F-MRL",
+            "teamName": "FCL Marlins",
+            "locationName": "Jupiter",
+            "firstYearOfPlay": "1999",
+            "league": {
+                "id": 124,
+                "name": "Florida Complex League",
+                "link": "/api/v1/league/124"
+            },
+            "division": {
+                "id": 216,
+                "name": "Florida Complex League East",
+                "link": "/api/v1/divisions/216"
+            },
+            "sport": {
+                "id": 16,
+                "link": "/api/v1/sports/16",
+                "name": "Rookie"
+            },
+            "shortName": "FCL Marlins",
+            "parentOrgName": "Miami Marlins",
+            "parentOrgId": 146,
+            "franchiseName": "FCL Marlins",
+            "clubName": "FCL Marlins",
+            "active": true
+        },
+        {
+            "allStarStatus": "N",
+            "id": 564,
+            "name": "Jacksonville Jumbo Shrimp",
+            "link": "/api/v1/teams/564",
+            "season": 2026,
+            "venue": {
+                "id": 2852,
+                "name": "Vystar Ballpark",
+                "link": "/api/v1/venues/2852"
+            },
+            "teamCode": "jax",
+            "fileCode": "t564",
+            "abbreviation": "JAX",
+            "teamName": "Jumbo Shrimp",
+            "locationName": "Jacksonville",
+            "firstYearOfPlay": "1970",
+            "league": {
+                "id": 117,
+                "name": "International League",
+                "link": "/api/v1/league/117"
+            },
+            "division": {
+                "id": 219,
+                "name": "International League East",
+                "link": "/api/v1/divisions/219"
+            },
+            "sport": {
+                "id": 11,
+                "link": "/api/v1/sports/11",
+                "name": "Triple-A"
+            },
+            "shortName": "Jacksonville",
+            "parentOrgName": "Miami Marlins",
+            "parentOrgId": 146,
+            "franchiseName": "Jacksonville",
+            "clubName": "Jumbo Shrimp",
+            "active": true
+        },
+        {
+            "allStarStatus": "N",
+            "id": 554,
+            "name": "Beloit Sky Carp",
+            "link": "/api/v1/teams/554",
+            "season": 2026,
+            "venue": {
+                "id": 5525,
+                "name": "ABC Supply Stadium",
+                "link": "/api/v1/venues/5525"
+            },
+            "teamCode": "bel",
+            "fileCode": "t554",
+            "abbreviation": "BEL",
+            "teamName": "Sky Carp",
+            "locationName": "Beloit",
+            "firstYearOfPlay": "1982",
+            "league": {
+                "id": 118,
+                "name": "Midwest League",
+                "link": "/api/v1/league/118"
+            },
+            "division": {
+                "id": 225,
+                "name": "Midwest League West",
+                "link": "/api/v1/divisions/225"
+            },
+            "sport": {
+                "id": 13,
+                "link": "/api/v1/sports/13",
+                "name": "High-A"
+            },
+            "shortName": "Beloit",
+            "parentOrgName": "Miami Marlins",
+            "parentOrgId": 146,
+            "franchiseName": "Beloit",
+            "clubName": "Sky Carp",
+            "active": true
+        },
+        {
+            "allStarStatus": "N",
+            "id": 619,
+            "name": "DSL Marlins",
+            "link": "/api/v1/teams/619",
+            "season": 2026,
+            "venue": {
+                "id": 6100,
+                "name": "Miami Marlins DR Complex",
+                "link": "/api/v1/venues/6100"
+            },
+            "teamCode": "dmm",
+            "fileCode": "t619",
+            "abbreviation": "D-MRL",
+            "teamName": "DSL Marlins",
+            "locationName": "Miami",
+            "firstYearOfPlay": "1992",
+            "league": {
+                "id": 130,
+                "name": "Dominican Summer League",
+                "link": "/api/v1/league/130"
+            },
+            "division": {
+                "id": 401,
+                "name": "Dominican Summer League Southeast",
+                "link": "/api/v1/divisions/401"
+            },
+            "sport": {
+                "id": 16,
+                "link": "/api/v1/sports/16",
+                "name": "Rookie"
+            },
+            "shortName": "DSL Marlins",
+            "parentOrgName": "Miami Marlins",
+            "parentOrgId": 146,
+            "franchiseName": "DSL Marlins",
+            "clubName": "DSL Marlins",
+            "active": true
+        },
+        {
+            "allStarStatus": "N",
+            "id": 3276,
+            "name": "Marlins Alternate Training Site",
+            "link": "/api/v1/teams/3276",
+            "season": 2026,
+            "venue": {
+                "id": 2852,
+                "name": "Vystar Ballpark",
+                "link": "/api/v1/venues/2852"
+            },
+            "teamCode": "fms",
+            "fileCode": "t3276",
+            "abbreviation": "MIA",
+            "teamName": "Marlins Alt. Site",
+            "locationName": "Jacksonville",
+            "firstYearOfPlay": "2001",
+            "league": {
+                "id": 5468,
+                "name": "Extended Spring Training",
+                "link": "/api/v1/league/5468"
+            },
+            "sport": {
+                "id": 21,
+                "link": "/api/v1/sports/21",
+                "name": "Minor League Baseball"
+            },
+            "shortName": "Marlins Alternate Training Site",
+            "parentOrgName": "Miami Marlins",
+            "parentOrgId": 146,
+            "active": true
+        },
+        {
+            "allStarStatus": "N",
+            "id": 4124,
+            "name": "Pensacola Blue Wahoos",
+            "link": "/api/v1/teams/4124",
+            "season": 2026,
+            "venue": {
+                "id": 4329,
+                "name": "Blue Wahoos Stadium",
+                "link": "/api/v1/venues/4329"
+            },
+            "teamCode": "pen",
+            "fileCode": "t4124",
+            "abbreviation": "PNS",
+            "teamName": "Blue Wahoos",
+            "locationName": "Pensacola",
+            "firstYearOfPlay": "2012",
+            "league": {
+                "id": 111,
+                "name": "Southern League",
+                "link": "/api/v1/league/111"
+            },
+            "division": {
+                "id": 240,
+                "name": "Southern League South",
+                "link": "/api/v1/divisions/240"
+            },
+            "sport": {
+                "id": 12,
+                "link": "/api/v1/sports/12",
+                "name": "Double-A"
+            },
+            "shortName": "Pensacola",
+            "parentOrgName": "Miami Marlins",
+            "parentOrgId": 146,
+            "franchiseName": "Pensacola",
+            "clubName": "Blue Wahoos",
+            "active": true
+        },
+        {
+            "allStarStatus": "O",
+            "id": 3277,
+            "name": "Marlins Organization",
+            "link": "/api/v1/teams/3277",
+            "season": 2026,
+            "venue": {
+                "id": 4169,
+                "name": "loanDepot park",
+                "link": "/api/v1/venues/4169"
+            },
+            "teamCode": "mmo",
+            "fileCode": "t3277",
+            "abbreviation": "MIA",
+            "teamName": "Marlins Organization",
+            "locationName": "Miami",
+            "firstYearOfPlay": "2001",
+            "league": {
+                "link": "/api/v1/league/null"
+            },
+            "sport": {
+                "id": 21,
+                "link": "/api/v1/sports/21",
+                "name": "Minor League Baseball"
+            },
+            "shortName": "Marlins Organization",
+            "parentOrgName": "Miami Marlins",
+            "parentOrgId": 146,
+            "franchiseName": "Marlins Organization",
+            "clubName": "Marlins Organization",
+            "active": true
+        },
+        {
+            "allStarStatus": "N",
+            "id": 479,
+            "name": "Jupiter Hammerheads",
+            "link": "/api/v1/teams/479",
+            "season": 2026,
+            "venue": {
+                "id": 2520,
+                "name": "Roger Dean Chevrolet Stadium",
+                "link": "/api/v1/venues/2520"
+            },
+            "teamCode": "jup",
+            "fileCode": "t479",
+            "abbreviation": "JUP",
+            "teamName": "Hammerheads",
+            "locationName": "Jupiter",
+            "firstYearOfPlay": "1998",
+            "league": {
+                "id": 123,
+                "name": "Florida State League",
+                "link": "/api/v1/league/123"
+            },
+            "division": {
+                "id": 214,
+                "name": "Florida State League East",
+                "link": "/api/v1/divisions/214"
+            },
+            "sport": {
+                "id": 14,
+                "link": "/api/v1/sports/14",
+                "name": "Single-A"
+            },
+            "shortName": "Jupiter",
+            "parentOrgName": "Miami Marlins",
+            "parentOrgId": 146,
+            "franchiseName": "Jupiter",
+            "clubName": "Hammerheads",
+            "active": true
+        },
+        {
+            "allStarStatus": "N",
+            "id": 2127,
+            "name": "DSL Miami",
+            "link": "/api/v1/teams/2127",
+            "season": 2026,
+            "venue": {
+                "id": 6100,
+                "name": "Miami Marlins DR Complex",
+                "link": "/api/v1/venues/6100"
+            },
+            "teamCode": "dmi",
+            "fileCode": "t2127",
+            "abbreviation": "D-MIA",
+            "teamName": "DSL Miami",
+            "locationName": "Miami",
+            "firstYearOfPlay": "1992",
+            "league": {
+                "id": 130,
+                "name": "Dominican Summer League",
+                "link": "/api/v1/league/130"
+            },
+            "division": {
+                "id": 248,
+                "name": "Dominican Summer League East",
+                "link": "/api/v1/divisions/248"
+            },
+            "sport": {
+                "id": 16,
+                "link": "/api/v1/sports/16",
+                "name": "Rookie"
+            },
+            "shortName": "DSL Miami",
+            "parentOrgName": "Miami Marlins",
+            "parentOrgId": 146,
+            "franchiseName": "DSL Miami",
+            "clubName": "DSL Miami",
+            "active": true
+        }
+    ]
+}
