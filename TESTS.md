@@ -2,7 +2,7 @@
 
 Tests cover three perspectives: **software engineering** (contract, errors), **data engineering** (accuracy, integrity), and **MLB domain** (seasonal behavior, game states, edge cases).
 
-Service runs at `http://localhost:8000`. Start with `uvicorn app:app`.
+Service runs at `http://localhost:1993`. Start with `uvicorn app:app --port 1993`.
 
 ---
 
@@ -10,7 +10,7 @@ Service runs at `http://localhost:8000`. Start with `uvicorn app:app`.
 
 ### T1 — No date defaults to today
 ```bash
-curl "http://localhost:8000/schedule"
+curl "http://localhost:1993/schedule"
 ```
 **Expect:** 11 keys, all affiliate IDs present, games populated for teams playing today.
 **Result:** ✅ 11 keys. 6 teams with games (146, 467, 479, 554, 564, 4124), 5 empty. All "Not Started" (called pre-game).
@@ -19,7 +19,7 @@ curl "http://localhost:8000/schedule"
 
 ### T2 — Always exactly 11 keys
 ```bash
-curl "http://localhost:8000/schedule?date=2026-04-01" | python3 -c "import json,sys; print(len(json.load(sys.stdin)))"
+curl "http://localhost:1993/schedule?date=2026-04-01" | python3 -c "import json,sys; print(len(json.load(sys.stdin)))"
 ```
 **Expect:** `11`
 **Result:** ✅ `11`
@@ -29,9 +29,9 @@ curl "http://localhost:8000/schedule?date=2026-04-01" | python3 -c "import json,
 ### T3 — Admin teams always return `{}`
 Admin teams are Marlins Prospects (385), Alternate Training Site (3276), and Marlins Organization (3277). These are logistical entries, not competing teams — they should never have games.
 ```bash
-curl "http://localhost:8000/schedule?date=2026-04-01"  # check keys 385, 3276, 3277
-curl "http://localhost:8000/schedule?date=2026-05-12"
-curl "http://localhost:8000/schedule?date=2026-05-20"
+curl "http://localhost:1993/schedule?date=2026-04-01"  # check keys 385, 3276, 3277
+curl "http://localhost:1993/schedule?date=2026-05-12"
+curl "http://localhost:1993/schedule?date=2026-05-20"
 ```
 **Expect:** `{}` for 385, 3276, 3277 on every date.
 **Result:** ✅ Confirmed empty across all three dates.
@@ -40,7 +40,7 @@ curl "http://localhost:8000/schedule?date=2026-05-20"
 
 ### T4 — Not Started: all required fields present
 ```bash
-curl "http://localhost:8000/schedule?date=2026-05-20"
+curl "http://localhost:1993/schedule?date=2026-05-20"
 ```
 **Expect:** Every non-empty entry has: `teamName`, `level`, `state`, `gameTime`, `venue`, `opponent`, `opponentParentClub`, `probablePitchers`.
 **Result:** ✅ All 6 teams with games passed field check (146, 467, 479, 554, 564, 4124).
@@ -49,7 +49,7 @@ curl "http://localhost:8000/schedule?date=2026-05-20"
 
 ### T5 — Completed: all required fields present
 ```bash
-curl "http://localhost:8000/schedule?date=2026-04-01"
+curl "http://localhost:1993/schedule?date=2026-04-01"
 ```
 **Expect:** Every non-empty entry has: `teamName`, `level`, `state`, `opponent`, `opponentParentClub`, `finalScore`, `winningPitcher`, `losingPitcher`, `savePitcher`.
 **Result:** ✅ All 2 teams with games passed field check (146, 564).
@@ -60,7 +60,7 @@ curl "http://localhost:8000/schedule?date=2026-04-01"
 
 ### T6 — Off-season date (January)
 ```bash
-curl "http://localhost:8000/schedule?date=2026-01-15"
+curl "http://localhost:1993/schedule?date=2026-01-15"
 ```
 **Expect:** All 11 teams return `{}`.
 **Result:** ✅ All 11 empty.
@@ -69,7 +69,7 @@ curl "http://localhost:8000/schedule?date=2026-01-15"
 
 ### T7 — Invalid date: wrong separator
 ```bash
-curl "http://localhost:8000/schedule?date=2026/04/01"
+curl "http://localhost:1993/schedule?date=2026/04/01"
 ```
 **Expect:** 422 with pattern mismatch error.
 **Result:** ✅ 422 — `String should match pattern '^\d{4}-\d{2}-\d{2}$'`
@@ -78,7 +78,7 @@ curl "http://localhost:8000/schedule?date=2026/04/01"
 
 ### T8 — Invalid date: reversed format
 ```bash
-curl "http://localhost:8000/schedule?date=04-01-2026"
+curl "http://localhost:1993/schedule?date=04-01-2026"
 ```
 **Expect:** 422.
 **Result:** ✅ 422 — pattern mismatch.
@@ -87,7 +87,7 @@ curl "http://localhost:8000/schedule?date=04-01-2026"
 
 ### T9 — Invalid date: non-date string
 ```bash
-curl "http://localhost:8000/schedule?date=abc"
+curl "http://localhost:1993/schedule?date=abc"
 ```
 **Expect:** 422.
 **Result:** ✅ 422 — pattern mismatch.
@@ -96,7 +96,7 @@ curl "http://localhost:8000/schedule?date=abc"
 
 ### T10 — Impossible date: passes regex but invalid calendar ⚠️
 ```bash
-curl "http://localhost:8000/schedule?date=2026-13-01"
+curl "http://localhost:1993/schedule?date=2026-13-01"
 ```
 **Expect:** Ideally 422, but our regex `^\d{4}-\d{2}-\d{2}$` only validates format not calendar validity.
 **Result:** ⚠️ Returns 502 (MLB API rejects with 400). The regex gap means impossible dates like month 13 slip through to the upstream API. Not a crash, but not a clean 422 either.
@@ -108,7 +108,7 @@ curl "http://localhost:8000/schedule?date=2026-13-01"
 
 ### T11 — Completed game
 ```bash
-curl "http://localhost:8000/schedule?date=2026-04-01"
+curl "http://localhost:1993/schedule?date=2026-04-01"
 ```
 **Expect:** State = "Completed" with final score, winning/losing/save pitchers.
 **Result:** ✅ Miami Marlins and Jacksonville Jumbo Shrimp both show "Completed".
@@ -117,7 +117,7 @@ curl "http://localhost:8000/schedule?date=2026-04-01"
 
 ### T12 — Not Started game
 ```bash
-curl "http://localhost:8000/schedule?date=2026-05-20"
+curl "http://localhost:1993/schedule?date=2026-05-20"
 ```
 **Expect:** State = "Not Started" with gameTime, venue, probable pitchers.
 **Result:** ✅ 6 teams show "Not Started". Probable pitchers present where announced, null otherwise.
@@ -135,7 +135,7 @@ Cannot be forced with a static date. Must be run during a live game.
 
 ### T14 — Known result: Marlins vs White Sox, 2026-04-01
 ```bash
-curl "http://localhost:8000/schedule?date=2026-04-01"  # check key "146"
+curl "http://localhost:1993/schedule?date=2026-04-01"  # check key "146"
 ```
 **Expect:**
 - `finalScore`: `{"us": 10, "them": 0}`
@@ -151,7 +151,7 @@ curl "http://localhost:8000/schedule?date=2026-04-01"  # check key "146"
 
 ### T15 — Known result: Jacksonville vs Sugar Land, 2026-04-01
 ```bash
-curl "http://localhost:8000/schedule?date=2026-04-01"  # check key "564"
+curl "http://localhost:1993/schedule?date=2026-04-01"  # check key "564"
 ```
 **Expect:**
 - `finalScore`: `{"us": 3, "them": 10}`
@@ -166,7 +166,7 @@ curl "http://localhost:8000/schedule?date=2026-04-01"  # check key "564"
 
 ### T16 — opponentParentClub null for MLB opponents
 ```bash
-curl "http://localhost:8000/schedule?date=2026-04-01"  # check key "146"
+curl "http://localhost:1993/schedule?date=2026-04-01"  # check key "146"
 ```
 **Expect:** `opponentParentClub: null` (Chicago White Sox is an MLB team).
 **Result:** ✅ `null`
@@ -175,7 +175,7 @@ curl "http://localhost:8000/schedule?date=2026-04-01"  # check key "146"
 
 ### T17 — opponentParentClub populated for MiLB opponents
 ```bash
-curl "http://localhost:8000/schedule?date=2026-04-01"  # check key "564"
+curl "http://localhost:1993/schedule?date=2026-04-01"  # check key "564"
 ```
 **Expect:** `opponentParentClub: "Houston Astros"` (Sugar Land Space Cowboys = Houston AAA affiliate).
 **Result:** ✅ `"Houston Astros"`
@@ -184,7 +184,7 @@ curl "http://localhost:8000/schedule?date=2026-04-01"  # check key "564"
 
 ### T18 — Opening Day 2026
 ```bash
-curl "http://localhost:8000/schedule?date=2026-03-27"  # check key "146"
+curl "http://localhost:1993/schedule?date=2026-03-27"  # check key "146"
 ```
 **Expect:** Marlins opening day game.
 **Result:** ✅ Marlins beat Colorado Rockies 2-1. Sandy Alcantara (W), Kyle Freeland (L), Pete Fairbanks (S).
@@ -196,7 +196,7 @@ curl "http://localhost:8000/schedule?date=2026-03-27"  # check key "146"
 ### T19 — FCL and DSL empty in April
 FCL (467) and DSL (619, 2127) seasons run June–August. They should not have games in April.
 ```bash
-curl "http://localhost:8000/schedule?date=2026-04-15"  # check keys 467, 619, 2127
+curl "http://localhost:1993/schedule?date=2026-04-15"  # check keys 467, 619, 2127
 ```
 **Expect:** All three return `{}`.
 **Result:** ✅ All three empty in April.
@@ -205,7 +205,7 @@ curl "http://localhost:8000/schedule?date=2026-04-15"  # check keys 467, 619, 21
 
 ### T20 — FCL active in June/July
 ```bash
-curl "http://localhost:8000/schedule?date=2026-06-15"  # check key 467
+curl "http://localhost:1993/schedule?date=2026-06-15"  # check key 467
 ```
 **Expect:** FCL Marlins (467) has a game.
 **Result:** ✅ FCL Marlins shows "Not Started" on 2026-06-15.
@@ -214,7 +214,7 @@ curl "http://localhost:8000/schedule?date=2026-06-15"  # check key 467
 
 ### T21 — DSL teams (619, 2127) in June
 ```bash
-curl "http://localhost:8000/schedule?date=2026-06-15"  # check keys 619, 2127
+curl "http://localhost:1993/schedule?date=2026-06-15"  # check keys 619, 2127
 ```
 **Expect:** DSL may be active (their season starts mid-June in the Dominican Republic).
 **Result:** ⚠️ Both still empty on 2026-06-15. DSL may start later in June or early July — worth rechecking with a July date.
@@ -223,7 +223,7 @@ curl "http://localhost:8000/schedule?date=2026-06-15"  # check keys 619, 2127
 
 ### T22 — All-Star break (MLB off, MiLB continues)
 ```bash
-curl "http://localhost:8000/schedule?date=2026-07-14"
+curl "http://localhost:1993/schedule?date=2026-07-14"
 ```
 **Expect:** MLB team (146) likely empty; minor league teams may still play (MiLB does not take the All-Star break).
 **Result:** ✅ As expected — 146 empty, FCL Marlins (467) has a game. MiLB keeps playing through the break.
@@ -233,7 +233,7 @@ curl "http://localhost:8000/schedule?date=2026-07-14"
 ### T23 — Doubleheader: known limitation ⚠️
 Beloit Sky Carp (554) played a doubleheader on 2026-04-03 (two games vs Wisconsin Timber Rattlers, gamePks 819510 and 819513).
 ```bash
-curl "http://localhost:8000/schedule?date=2026-04-03"  # check key "554"
+curl "http://localhost:1993/schedule?date=2026-04-03"  # check key "554"
 ```
 **Expect (ideally):** Both games returned.
 **Result:** ⚠️ Only one game returned. `indexGamesByTeam` overwrites on the second iteration, so the last game seen wins. Scores showed 0-0 with null pitchers (game 2 may have been suspended/unresolved).
