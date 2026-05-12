@@ -30,3 +30,15 @@ Payload returns:
 
 ## Step 4 — Validate combined vs individual API calls
 Confirmed that passing all affiliate IDs in a single call returns the exact same results as making separate calls per team and merging. One call is equivalent to N individual calls unioned together.
+
+## Step 5 — Build the /schedule wrapper service
+
+**The problem:** The MLB API returns games grouped by date. Our wrapper needs to return data grouped by team — one entry per affiliate, regardless of whether they played. Two different shapes of the same data.
+
+**The solution:** Invert the structure using a hash set.
+- Load all 11 affiliate IDs from the DB into a set (O(1) lookup)
+- Iterate every game in the MLB response and check if home or away team ID is in that set
+- If yes, store that game keyed by the affiliate's team ID
+- Then iterate all 11 affiliates — if they have an entry in the map, build their game object; if not, return `{}`
+
+This is a classic hash map inversion: one pass through the data O(n), constant-time lookups O(1), giving O(n) overall. A list-based lookup would work too given k=11 is fixed, but the set is the correct instinct and scales cleanly if the affiliate list ever grows.
