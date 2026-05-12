@@ -31,6 +31,22 @@ Payload returns:
 ## Step 4 — Validate combined vs individual API calls
 Confirmed that passing all affiliate IDs in a single call returns the exact same results as making separate calls per team and merging. One call is equivalent to N individual calls unioned together.
 
+## Step 6 — Comprehensive endpoint testing
+Full details in `TESTS.md`. 17 passed, 2 known gaps identified.
+
+- **Response contract** — always 11 keys, correct shape, empty objects not nulls
+- **Admin teams** — 385, 3276, 3277 always return `{}` across all dates
+- **Required fields** — all state-specific fields present for Not Started and Completed
+- **Off-season date** — January date returns all 11 empty
+- **Invalid date formats** — wrong separator, reversed order, non-date string all return 422
+- **Impossible date** — month 13 passes regex but returns 502 instead of 422 ⚠️
+- **Completed game accuracy** — scores, pitcher names, parent clubs verified against known results
+- **Opening Day 2026** — Marlins beat Rockies 2-1, Sandy Alcantara W, Pete Fairbanks S
+- **opponentParentClub** — null for MLB opponents, populated for MiLB opponents
+- **Seasonal behavior** — FCL/DSL empty in April, FCL active in June, MiLB plays through All-Star break
+- **Doubleheaders** — wrapper silently drops second game; confirmed on multiple dates ⚠️
+- **In Progress state** — not yet validated, requires a live game ⏳
+
 ## Step 5 — Build the /schedule wrapper service
 
 **The problem:** The MLB API returns games grouped by date. Our wrapper needs to return data grouped by team — one entry per affiliate, regardless of whether they played. Two different shapes of the same data.
