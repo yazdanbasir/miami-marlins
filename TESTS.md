@@ -26,14 +26,14 @@ curl "http://localhost:1993/schedule?date=2026-04-01" | python3 -c "import json,
 
 ---
 
-### T3 — Admin teams always return `{}`
+### T3 — Admin teams always return `[]`
 Admin teams are Marlins Prospects (385), Alternate Training Site (3276), and Marlins Organization (3277). These are logistical entries, not competing teams — they should never have games.
 ```bash
 curl "http://localhost:1993/schedule?date=2026-04-01"  # check keys 385, 3276, 3277
 curl "http://localhost:1993/schedule?date=2026-05-12"
 curl "http://localhost:1993/schedule?date=2026-05-20"
 ```
-**Expect:** `{}` for 385, 3276, 3277 on every date.
+**Expect:** `[]` for 385, 3276, 3277 on every date.
 **Result:** ✅ Confirmed empty across all three dates.
 
 ---
@@ -62,7 +62,7 @@ curl "http://localhost:1993/schedule?date=2026-04-01"
 ```bash
 curl "http://localhost:1993/schedule?date=2026-01-15"
 ```
-**Expect:** All 11 teams return `{}`.
+**Expect:** All 11 teams return `[]`.
 **Result:** ✅ All 11 empty.
 
 ---
@@ -99,8 +99,7 @@ curl "http://localhost:1993/schedule?date=abc"
 curl "http://localhost:1993/schedule?date=2026-13-01"
 ```
 **Expect:** Ideally 422, but our regex `^\d{4}-\d{2}-\d{2}$` only validates format not calendar validity.
-**Result:** ⚠️ Returns 502 (MLB API rejects with 400). The regex gap means impossible dates like month 13 slip through to the upstream API. Not a crash, but not a clean 422 either.
-**Note for improvement:** Add calendar validation (e.g. `datetime.strptime`) to return a proper 422 before hitting MLB API.
+**Result:** ✅ Fixed. Now returns 422 with `"Invalid date: 2026-13-01"`. Added `datetime.strptime` validation in the endpoint before the MLB API call.
 
 ---
 
@@ -198,7 +197,7 @@ FCL (467) and DSL (619, 2127) seasons run June–August. They should not have ga
 ```bash
 curl "http://localhost:1993/schedule?date=2026-04-15"  # check keys 467, 619, 2127
 ```
-**Expect:** All three return `{}`.
+**Expect:** All three return `[]`.
 **Result:** ✅ All three empty in April.
 
 ---
@@ -236,11 +235,7 @@ Beloit Sky Carp (554) played a doubleheader on 2026-04-03 (two games vs Wisconsi
 curl "http://localhost:1993/schedule?date=2026-04-03"  # check key "554"
 ```
 **Expect (ideally):** Both games returned.
-**Result:** ⚠️ Only one game returned. `indexGamesByTeam` overwrites on the second iteration, so the last game seen wins. Scores showed 0-0 with null pitchers (game 2 may have been suspended/unresolved).
-
-**Known limitation:** The current data model (one entry per team per day) cannot represent doubleheaders. Doubleheaders were found on: 2026-04-03 (554), 2026-04-09 (479), 2026-04-23 (4124), 2026-05-02 (4124), 2026-05-05 (467), 2026-05-06 (554). All would silently return only one game.
-
-**Note for improvement:** Store games as a list per team (`{teamId: [game1, game2]}`) to support doubleheaders.
+**Result:** ✅ Fixed. Now returns both games as a list. Response contract updated — all values are now lists. `indexGamesByTeam` uses `setdefault` + `append` and sorts by `gameNumber`. Confirmed: 554 returns 2 games on 2026-04-03, ordered game 1 then game 2.
 
 ---
 
@@ -250,14 +245,14 @@ curl "http://localhost:1993/schedule?date=2026-04-03"  # check key "554"
 |---|------|--------|
 | T1 | No date → today | ✅ |
 | T2 | Always 11 keys | ✅ |
-| T3 | Admin teams always `{}` | ✅ |
+| T3 | Admin teams always `[]` | ✅ |
 | T4 | Not Started fields | ✅ |
 | T5 | Completed fields | ✅ |
 | T6 | Off-season all empty | ✅ |
 | T7 | Invalid separator → 422 | ✅ |
 | T8 | Reversed format → 422 | ✅ |
 | T9 | Non-date string → 422 | ✅ |
-| T10 | Impossible date (month 13) | ⚠️ 502 not 422 — regex gap |
+| T10 | Impossible date (month 13) | ✅ Fixed — now returns 422 |
 | T11 | Completed state | ✅ |
 | T12 | Not Started state | ✅ |
 | T13 | In Progress state | ⏳ Needs live game |
@@ -270,6 +265,6 @@ curl "http://localhost:1993/schedule?date=2026-04-03"  # check key "554"
 | T20 | FCL active in June | ✅ |
 | T21 | DSL active in June | ⚠️ Still empty — recheck July |
 | T22 | All-Star break behavior | ✅ |
-| T23 | Doubleheader handling | ⚠️ Known limitation — drops second game |
+| T23 | Doubleheader handling | ✅ Fixed — returns list of games |
 
-**17 passed / 2 warnings / 1 pending (live game) / 2 known gaps identified**
+**19 passed / 1 pending (live game)**

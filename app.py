@@ -1,7 +1,9 @@
-from fastapi import FastAPI, HTTPException, Query
+from datetime import datetime
 from pathlib import Path
+
 import requests
 import sqlite3
+from fastapi import FastAPI, HTTPException, Query
 
 BASE_URL = "https://statsapi.mlb.com/api/v1"
 DB_PATH  = Path(__file__).parent / "marlins.db"
@@ -74,18 +76,19 @@ def fetchOpponentParentOrgs(teamIds: list[int]) -> dict[int, str | None]:
         raise HTTPException(status_code=502, detail=f"MLB API team info error: {e}")
 
 # Transform ─────────────────────────────────────────────────────────────────
-def indexGamesByTeam(scheduleData: dict, affiliateIds: set[int]) -> dict[int, dict]:
-    # Flatten schedule response into a team ID → game lookup form
+def indexGamesByTeam(scheduleData: dict, affiliateIds: set[int]) -> dict[int, list[dict]]:
+    # Flatten schedule response into a team ID → games lookup form
     # Only keep games where one of our affiliates is playing
-    gamesByTeam = {}
+    gamesByTeam: dict[int, list] = {}
     for dateEntry in scheduleData.get("dates", []):
         for game in dateEntry.get("games", []):
             homeId = game["teams"]["home"]["team"]["id"]
             awayId = game["teams"]["away"]["team"]["id"]
-            if homeId in affiliateIds:
-                gamesByTeam[homeId] = game
-            if awayId in affiliateIds:
-                gamesByTeam[awayId] = game
+            for tid in (homeId, awayId):
+                if tid in affiliateIds:
+                    gamesByTeam.setdefault(tid, []).append(game)
+    for games in gamesByTeam.values():
+        games.sort(key=lambda g: g.get("gameNumber", 1))
     return gamesByTeam
 
 def getSides(game: dict, ourTeamId: int) -> tuple[dict, dict]:
@@ -178,6 +181,12 @@ def buildGameEntry(affiliate: dict, game: dict, parentOrgs: dict, liveFeed: dict
 # Endpoint ──────────────────────────────────────────────────────────────────
 @app.get("/schedule")
 def schedule(date: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}-\d{2}$")):
+    if date:
+        try:
+            datetime.strptime(date, "%Y-%m-%d")
+        except ValueError:
+            raise HTTPException(status_code=422, detail=f"Invalid date: {date}")
+
     # Load our affiliate teams from the DB, then fetch everything we need from the MLB API
     affiliates   = loadAffiliates()
     teamIds      = [a["id"] for a in affiliates]
@@ -188,30 +197,31 @@ def schedule(date: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}-\d{2}
     gamesByTeam  = indexGamesByTeam(scheduleData, affiliateIds)
 
     # Collect every opponent team ID so we can look up their parent org in one batch call
-    opponentIds = {
-        (game["teams"]["away" if game["teams"]["home"]["team"]["id"] == ourId else "home"]["team"]["id"])
-        for ourId, game in gamesByTeam.items()
-    }
+    opponentIds = set()
+    for ourId, games in gamesByTeam.items():
+        for game in games:
+            home = game["teams"]["home"]["team"]["id"]
+            away = game["teams"]["away"]["team"]["id"]
+            opponentIds.add(away if home == ourId else home)
     parentOrgs = fetchOpponentParentOrgs(list(opponentIds))
 
     # Only fetch live feeds for games that are actually in progress right now
     liveFeeds = {}
-    for game in gamesByTeam.values():
-        if game["status"]["abstractGameState"] == "Live":
-            pk = game["gamePk"]
-            if pk not in liveFeeds:
-                liveFeeds[pk] = fetchLiveFeed(pk)
+    for games in gamesByTeam.values():
+        for game in games:
+            if game["status"]["abstractGameState"] == "Live":
+                pk = game["gamePk"]
+                if pk not in liveFeeds:
+                    liveFeeds[pk] = fetchLiveFeed(pk)
 
-    # Build the final response. One entry per affiliate, empty dict if they have no game today
+    # Build the final response. One entry per affiliate, empty list if they have no game today
     response = {}
     for affiliate in affiliates:
-        aid  = affiliate["id"]
-        game = gamesByTeam.get(aid)
-        if not game:
-            response[str(aid)] = {}
-        else:
-            response[str(aid)] = buildGameEntry(
-                affiliate, game, parentOrgs, liveFeeds.get(game["gamePk"])
-            )
+        aid   = affiliate["id"]
+        games = gamesByTeam.get(aid, [])
+        response[str(aid)] = [
+            buildGameEntry(affiliate, game, parentOrgs, liveFeeds.get(game["gamePk"]))
+            for game in games
+        ]
 
     return response
