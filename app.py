@@ -214,14 +214,21 @@ def schedule(date: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}-\d{2}
                 if pk not in liveFeeds:
                     liveFeeds[pk] = fetchLiveFeed(pk)
 
-    # Build the final response. One entry per affiliate, empty list if they have no game today
+    # Build the final response.
+    # 0 games → {}  |  1 game → {…}  |  2 games (doubleheader) → [{…}, {…}]
     response = {}
     for affiliate in affiliates:
-        aid   = affiliate["id"]
-        games = gamesByTeam.get(aid, [])
-        response[str(aid)] = [
+        aid    = affiliate["id"]
+        games  = gamesByTeam.get(aid, [])
+        built  = [
             buildGameEntry(affiliate, game, parentOrgs, liveFeeds.get(game["gamePk"]))
             for game in games
         ]
+        if len(built) == 0:
+            response[str(aid)] = {}
+        elif len(built) == 1:
+            response[str(aid)] = built[0]
+        else:
+            response[str(aid)] = built
 
     return response

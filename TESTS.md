@@ -33,7 +33,7 @@ curl "http://localhost:1993/schedule?date=2026-04-01"  # check keys 385, 3276, 3
 curl "http://localhost:1993/schedule?date=2026-05-12"
 curl "http://localhost:1993/schedule?date=2026-05-20"
 ```
-**Expect:** `[]` for 385, 3276, 3277 on every date.
+**Expect:** `{}` for 385, 3276, 3277 on every date.
 **Result:** ✅ Confirmed empty across all three dates.
 
 ---
@@ -62,7 +62,7 @@ curl "http://localhost:1993/schedule?date=2026-04-01"
 ```bash
 curl "http://localhost:1993/schedule?date=2026-01-15"
 ```
-**Expect:** All 11 teams return `[]`.
+**Expect:** All 11 teams return `{}`.
 **Result:** ✅ All 11 empty.
 
 ---
@@ -197,7 +197,7 @@ FCL (467) and DSL (619, 2127) seasons run June–August. They should not have ga
 ```bash
 curl "http://localhost:1993/schedule?date=2026-04-15"  # check keys 467, 619, 2127
 ```
-**Expect:** All three return `[]`.
+**Expect:** All three return `{}`.
 **Result:** ✅ All three empty in April.
 
 ---
@@ -245,7 +245,7 @@ curl "http://localhost:1993/schedule?date=2026-04-03"  # check key "554"
 |---|------|--------|
 | T1 | No date → today | ✅ |
 | T2 | Always 11 keys | ✅ |
-| T3 | Admin teams always `[]` | ✅ |
+| T3 | Admin teams always `{}` | ✅ |
 | T4 | Not Started fields | ✅ |
 | T5 | Completed fields | ✅ |
 | T6 | Off-season all empty | ✅ |

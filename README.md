@@ -39,7 +39,7 @@ Confirmed that passing all affiliate IDs in a single call returns the exact same
 - Load all 11 affiliate IDs from the DB into a set (O(1) lookup)
 - Iterate every game in the MLB response and check if home or away team ID is in that set
 - If yes, store that game keyed by the affiliate's team ID
-- Then iterate all 11 affiliates — if they have an entry in the map, build their game object(s) as a list; if not, return `[]`
+- Then iterate all 11 affiliates — 0 games → `{}`, 1 game → `{...}`, doubleheader → `[{...}, {...}]`
 
 This is a classic hash map inversion: one pass through the data O(n), constant-time lookups O(1), giving O(n) overall. A list-based lookup would work too given k=11 is fixed, but the set is the correct instinct and scales cleanly if the affiliate list ever grows.
 
@@ -47,7 +47,7 @@ This is a classic hash map inversion: one pass through the data O(n), constant-t
 Full details in `TESTS.md`. 19 passed, 1 pending (live game).
 
 - **Response contract** — always 11 keys, correct shape, empty lists not nulls
-- **Admin teams** — 385, 3276, 3277 always return `[]` across all dates
+- **Admin teams** — 385, 3276, 3277 always return `{}` across all dates
 - **Required fields** — all state-specific fields present for Not Started and Completed
 - **Off-season date** — January date returns all 11 empty
 - **Invalid date formats** — wrong separator, reversed order, non-date string all return 422
