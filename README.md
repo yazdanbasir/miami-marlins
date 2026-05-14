@@ -55,7 +55,10 @@ Full details in `TESTS.md`. 19 passed, 1 pending (live game).
 - **Opening Day 2026** — Marlins beat Rockies 2-1, Sandy Alcantara W, Pete Fairbanks S
 - **opponentParentClub** — null for MLB opponents, populated for MiLB opponents
 - **Seasonal behavior** — FCL/DSL empty in April, FCL active in June, MiLB plays through All-Star break
-- **In Progress state** — not yet validated, requires a live game ⏳
+- **In Progress state** — not yet validated, requires a live game ⏳ (see note below)
+
+### T13 — In Progress state (pending live game)
+The In Progress game state is fully implemented in `app.py` (`buildInProgress`) but cannot be tested with a static date since no historical snapshot of a mid-game state is available from the MLB API — it only returns the final state for completed games. To validate, the endpoint must be called while a Marlins or affiliate game is actively in progress. The fields it returns are sourced from the live feed endpoint (`/api/v1.1/game/{gamePk}/feed/live`) and cover all required fields: opponent, venue, current score, inning, inning half, outs, runners on base, current pitcher, and current batter.
 
 ## Step 7 — Fix two gaps identified in testing
 
