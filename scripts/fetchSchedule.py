@@ -8,7 +8,7 @@ from pathlib import Path
 import requests
 
 BASE_URL = "https://statsapi.mlb.com/api/v1"
-DB_PATH  = Path(__file__).parent / "marlins.db"
+DB_PATH  = Path(__file__).parent.parent / "data" / "marlins.db"
 
 
 def parseDate(value: str) -> str:

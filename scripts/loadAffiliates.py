@@ -116,8 +116,9 @@ def transformTeam(team: dict) -> dict:
 
 def main():
     parser = argparse.ArgumentParser(description="Load Marlins affiliates JSON into SQLite.")
-    parser.add_argument("--json", default="affiliates.json", help="Path to affiliates JSON file")
-    parser.add_argument("--db", default="marlins.db", help="Path to SQLite database file")
+    DATA_DIR = Path(__file__).parent.parent / "data"
+    parser.add_argument("--json", default=str(DATA_DIR / "affiliates.json"), help="Path to affiliates JSON file")
+    parser.add_argument("--db",   default=str(DATA_DIR / "marlins.db"),      help="Path to SQLite database file")
     args = parser.parse_args()
 
     jsonPath = Path(args.json)
