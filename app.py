@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date as Date, datetime
 from pathlib import Path
 
 import requests
@@ -186,6 +186,8 @@ def schedule(date: str | None = Query(default=None, pattern=r"^\d{4}-\d{2}-\d{2}
             datetime.strptime(date, "%Y-%m-%d")
         except ValueError:
             raise HTTPException(status_code=422, detail=f"Invalid date: {date}")
+    else:
+        date = Date.today().isoformat()
 
     # Load our affiliate teams from the DB, then fetch everything we need from the MLB API
     affiliates   = loadAffiliates()

@@ -46,7 +46,7 @@ This is a classic hash map inversion: one pass through the data O(n), constant-t
 ## Step 6 — Comprehensive endpoint testing
 Full details in `TESTS.md`. 19 passed, 1 pending (live game).
 
-- **Response contract** — always 11 keys, correct shape, empty lists not nulls
+- **Response contract** — always 11 keys, correct shape, empty objects not nulls
 - **Admin teams** — 385, 3276, 3277 always return `{}` across all dates
 - **Required fields** — all state-specific fields present for Not Started and Completed
 - **Off-season date** — January date returns all 11 empty
@@ -60,4 +60,4 @@ Full details in `TESTS.md`. 19 passed, 1 pending (live game).
 ## Step 7 — Fix two gaps identified in testing
 
 - **Impossible date (T10)** — added `datetime.strptime` validation after the regex check; impossible calendar dates like month 13 now return a clean 422 instead of passing through to the MLB API
-- **Doubleheaders (T23)** — `indexGamesByTeam` now uses `setdefault` + `append` instead of overwrite, and sorts by `gameNumber`; response values are always lists (`[]`, `[{...}]`, `[{...},{...}]`)
+- **Doubleheaders (T23)** — `indexGamesByTeam` now uses `setdefault` + `append` instead of overwrite, and sorts by `gameNumber`; contract is `{}` no game, `{...}` one game, `[{...},{...}]` doubleheader
