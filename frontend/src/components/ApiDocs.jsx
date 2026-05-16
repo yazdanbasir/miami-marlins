@@ -1,118 +1,162 @@
 import { useState } from 'react'
 
-const COMMON_FIELDS = [
-  { name: 'teamName',           type: 'string',       desc: 'Affiliate team name, e.g. "Jupiter Hammerheads"' },
-  { name: 'level',              type: 'string',       desc: 'Competition level, e.g. "Single-A", "Triple-A", "Major League Baseball"' },
-  { name: 'state',              type: 'string',       desc: '"Not Started" | "In Progress" | "Completed"' },
-  { name: 'opponent',           type: 'string',       desc: 'Opponent team name' },
-  { name: 'opponentParentClub', type: 'string | null', desc: 'Opponent\'s MLB parent org, e.g. "New York Mets". null if opponent is MLB.' },
-]
-
-const STATE_FIELDS = {
-  'Not Started': [
-    { name: 'gameTime',             type: 'string',       desc: 'Scheduled start time in ISO 8601 UTC format' },
-    { name: 'venue',                type: 'string',       desc: 'Stadium name' },
-    { name: 'probablePitchers.us',  type: 'string | null', desc: 'Our probable starter full name, if announced' },
-    { name: 'probablePitchers.them',type: 'string | null', desc: 'Opponent probable starter full name, if announced' },
-  ],
-  'In Progress': [
-    { name: 'venue',         type: 'string',        desc: 'Stadium name' },
-    { name: 'score.us',      type: 'number',        desc: 'Our current runs' },
-    { name: 'score.them',    type: 'number',        desc: 'Opponent current runs' },
-    { name: 'inning',        type: 'number',        desc: 'Current inning number' },
-    { name: 'inningHalf',    type: 'string',        desc: '"Top" or "Bottom"' },
-    { name: 'outs',          type: 'number',        desc: 'Current number of outs (0–2)' },
-    { name: 'runnersOnBase', type: 'string[]',      desc: 'Occupied bases, e.g. ["first", "third"]' },
-    { name: 'currentPitcher',type: 'string | null', desc: 'Pitcher currently on the mound' },
-    { name: 'currentBatter', type: 'string | null', desc: 'Batter currently at the plate' },
-  ],
-  Completed: [
-    { name: 'finalScore.us',   type: 'number',        desc: 'Our final runs scored' },
-    { name: 'finalScore.them', type: 'number',        desc: 'Opponent final runs scored' },
-    { name: 'winningPitcher',  type: 'string | null', desc: 'Winning pitcher full name' },
-    { name: 'losingPitcher',   type: 'string | null', desc: 'Losing pitcher full name' },
-    { name: 'savePitcher',     type: 'string | null', desc: 'Save pitcher full name, or null if no save' },
-  ],
+const STATES = {
+  'Not Started': {
+    fields: [
+      { name: 'teamName',              type: 'string'       },
+      { name: 'level',                 type: 'string'       },
+      { name: 'state',                 type: 'string'       },
+      { name: 'gameTime',              type: 'string'       },
+      { name: 'venue',                 type: 'string'       },
+      { name: 'opponent',              type: 'string'       },
+      { name: 'opponentParentClub',    type: 'string | null'},
+      { name: 'probablePitchers.us',   type: 'string | null'},
+      { name: 'probablePitchers.them', type: 'string | null'},
+    ],
+    example: `{
+  "564": {
+    "teamName": "Jacksonville Jumbo Shrimp",
+    "level": "Triple-A",
+    "state": "Not Started",
+    "gameTime": "2026-05-15T23:45:00Z",
+    "venue": "AutoZone Park",
+    "opponent": "Memphis Redbirds",
+    "opponentParentClub": "St. Louis Cardinals",
+    "probablePitchers": {
+      "us": "Dax Fulton",
+      "them": null
+    }
+  }
+}`,
+  },
+  'In Progress': {
+    fields: [
+      { name: 'teamName',           type: 'string'        },
+      { name: 'level',              type: 'string'        },
+      { name: 'state',              type: 'string'        },
+      { name: 'venue',              type: 'string'        },
+      { name: 'opponent',           type: 'string'        },
+      { name: 'opponentParentClub', type: 'string | null' },
+      { name: 'score.us',           type: 'number'        },
+      { name: 'score.them',         type: 'number'        },
+      { name: 'inning',             type: 'number'        },
+      { name: 'inningHalf',         type: 'string'        },
+      { name: 'outs',               type: 'number'        },
+      { name: 'runnersOnBase',      type: 'string[]'      },
+      { name: 'currentPitcher',     type: 'string | null' },
+      { name: 'currentBatter',      type: 'string | null' },
+    ],
+    example: `{
+  "146": {
+    "teamName": "Miami Marlins",
+    "level": "Major League Baseball",
+    "state": "In Progress",
+    "venue": "loanDepot park",
+    "opponent": "Chicago White Sox",
+    "opponentParentClub": null,
+    "score": { "us": 3, "them": 2 },
+    "inning": 7,
+    "inningHalf": "Bottom",
+    "outs": 1,
+    "runnersOnBase": ["first", "third"],
+    "currentPitcher": "Sandy Alcantara",
+    "currentBatter": "Jazz Chisholm Jr."
+  }
+}`,
+  },
+  'Completed': {
+    fields: [
+      { name: 'teamName',           type: 'string'        },
+      { name: 'level',              type: 'string'        },
+      { name: 'state',              type: 'string'        },
+      { name: 'opponent',           type: 'string'        },
+      { name: 'opponentParentClub', type: 'string | null' },
+      { name: 'finalScore.us',      type: 'number'        },
+      { name: 'finalScore.them',    type: 'number'        },
+      { name: 'winningPitcher',     type: 'string | null' },
+      { name: 'losingPitcher',      type: 'string | null' },
+      { name: 'savePitcher',        type: 'string | null' },
+    ],
+    example: `{
+  "146": {
+    "teamName": "Miami Marlins",
+    "level": "Major League Baseball",
+    "state": "Completed",
+    "opponent": "Chicago White Sox",
+    "opponentParentClub": null,
+    "finalScore": { "us": 10, "them": 0 },
+    "winningPitcher": "Sandy Alcantara",
+    "losingPitcher": "Shane Smith",
+    "savePitcher": null
+  }
+}`,
+  },
 }
 
-function FieldsGrid({ fields }) {
-  return (
-    <div className="fields-grid">
-      <div className="fields-header">Field</div>
-      <div className="fields-header">Type</div>
-      <div className="fields-header">Description</div>
-      {fields.map(f => (
-        <>
-          <div key={f.name + '-n'} className="field-name">{f.name}</div>
-          <div key={f.name + '-t'} className="field-type">{f.type}</div>
-          <div key={f.name + '-d'} className="field-desc">{f.desc}</div>
-        </>
-      ))}
-    </div>
-  )
+function highlight(json) {
+  return json
+    .replace(/("(?:[^"\\]|\\.)*")(\s*:)/g, '<span class="jk">$1</span>$2')
+    .replace(/:\s*("(?:[^"\\]|\\.)*")/g, ': <span class="js">$1</span>')
+    .replace(/:\s*(\d+\.?\d*)/g, ': <span class="jn">$1</span>')
+    .replace(/:\s*(null)/g, ': <span class="jnull">$1</span>')
+    .replace(/:\s*(true|false)/g, ': <span class="jb">$1</span>')
 }
 
 export default function ApiDocs() {
-  const [activeState, setActiveState] = useState('Not Started')
+  const [active, setActive] = useState('Not Started')
+  const { fields, example } = STATES[active]
 
   return (
     <div>
       <div className="section-title">API Reference</div>
-      <div className="docs-panel">
 
-        <div className="docs-endpoint">
-          <span className="method-badge">GET</span>
-          <span className="endpoint-path">/schedule</span>
-          <span className="endpoint-desc">Returns the day's schedule for all 11 Marlins affiliates</span>
+      <div className="docs-card">
+        <div className="docs-top">
+          <div className="docs-endpoint-row">
+            <span className="method-badge">GET</span>
+            <span className="endpoint-path">/schedule</span>
+            <span className="endpoint-desc">Returns the day's schedule for all Marlins affiliates</span>
+          </div>
+          <div className="docs-param-row">
+            <span className="param-label">date</span>
+            <span className="param-type">YYYY-MM-DD</span>
+            <span className="param-optional">optional</span>
+            <span className="param-note">— defaults to today. Returns <code className="inline-code">{'{}'}</code> for teams with no game, a game object if one game, or an array for doubleheaders.</span>
+          </div>
         </div>
 
-        <div className="docs-section">
-          <div className="docs-section-title">Parameters</div>
-          <table className="params-table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Type</th>
-                <th>Required</th>
-                <th>Description</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><span className="param-name">date</span></td>
-                <td><span className="param-type">YYYY-MM-DD</span></td>
-                <td><span className="param-optional">No</span></td>
-                <td className="param-desc">Calendar date to query. Defaults to today when omitted.</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <div className="docs-section">
-          <div className="docs-section-title">Response</div>
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginBottom: 16 }}>
-            A dict keyed by affiliate team ID (string). Each value is <code style={{ fontFamily: 'var(--font-mono)', fontSize: 12, background: '#f3f4f6', padding: '1px 5px', borderRadius: 3 }}>{'{}'}</code> if no game,
-            a game object if one game, or an array of game objects for doubleheaders.
-          </p>
-
-          <div className="docs-section-title" style={{ marginBottom: 12 }}>Common Fields (always present when a game exists)</div>
-          <FieldsGrid fields={COMMON_FIELDS} />
-
-          <div className="docs-section-title" style={{ marginTop: 20, marginBottom: 12 }}>State-specific Fields</div>
+        <div className="docs-response">
           <div className="state-tabs">
-            {Object.keys(STATE_FIELDS).map(s => (
+            {Object.keys(STATES).map(s => (
               <button
                 key={s}
-                className={`state-tab${activeState === s ? ' active' : ''}`}
-                onClick={() => setActiveState(s)}
+                className={`state-tab${active === s ? ' active' : ''}`}
+                onClick={() => setActive(s)}
               >
                 {s}
               </button>
             ))}
           </div>
-          <FieldsGrid fields={STATE_FIELDS[activeState]} />
-        </div>
 
+          <div className="response-split">
+            <div className="response-fields">
+              <div className="response-panel-header">Fields</div>
+              {fields.map(f => (
+                <div key={f.name} className="rf-row">
+                  <span className="rf-name">{f.name}</span>
+                  <span className="rf-type">{f.type}</span>
+                </div>
+              ))}
+            </div>
+            <div className="response-example">
+              <div className="response-panel-header">Example Response</div>
+              <pre
+                className="json-block"
+                dangerouslySetInnerHTML={{ __html: highlight(example) }}
+              />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   )
