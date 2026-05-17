@@ -112,7 +112,7 @@ function GameCard({ teamId, data }) {
             {game.state === 'Not Started' && (
               <>
                 <div className="card-opponent">{game.opponent}</div>
-                <div className="card-parent-club">{game.opponentParentClub || ' '}</div>
+                <div className="card-parent-club">{game.opponentParentClub || ' '}</div>
                 <div className="card-divider" />
                 <div className="card-meta-row">
                   <span>{formatTime(game.gameTime)}</span>
@@ -144,19 +144,16 @@ function GameCard({ teamId, data }) {
                     {game.score.them}
                   </span>
                 </div>
-                <div className="card-situation">
-                  <div className="situation-text">
-                    <span>{game.inningHalf === 'Bottom' ? 'Bot' : 'Top'} {game.inning}</span>
-                    <span className="meta-sep">·</span>
-                    <span>{game.outs} {game.outs === 1 ? 'out' : 'outs'}</span>
-                  </div>
-                  <BaseDiamond runners={game.runnersOnBase} />
-                </div>
+                <div className="card-opponent">{game.opponent}</div>
+                <div className="card-parent-club">{game.opponentParentClub || ' '}</div>
                 <div className="card-divider" />
-                <div className="card-meta-row">
-                  <span>{game.opponent}</span>
-                  <span className="meta-sep">·</span>
-                  <span>{game.venue}</span>
+                <div className="card-live-bar">
+                  <span className="live-venue">{game.venue}</span>
+                  <div className="live-indicators">
+                    <span className="live-stat">{game.inningHalf === 'Bottom' ? '↓' : '↑'}{game.inning}</span>
+                    <span className="live-stat">{[0,1,2].map(i => i < game.outs ? '●' : '○').join('')}</span>
+                    <BaseDiamond runners={game.runnersOnBase} />
+                  </div>
                 </div>
                 <div className="card-divider" />
                 <div className="card-pitchers">
