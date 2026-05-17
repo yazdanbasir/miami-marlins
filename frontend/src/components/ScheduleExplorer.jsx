@@ -92,13 +92,19 @@ function GameCard({ teamId, data }) {
                 <div className="card-opponent">{game.opponent}</div>
                 <div className="card-parent-club">{game.opponentParentClub || ' '}</div>
                 <div className="card-divider" />
-                <div className="card-decisions">
-                  <span className="decision-label">W</span>
-                  <span className="decision-value">{game.winningPitcher || '—'}</span>
-                  <span className="decision-label">L</span>
-                  <span className="decision-value">{game.losingPitcher || '—'}</span>
-                  <span className="decision-label">SV</span>
-                  <span className="decision-value">{game.savePitcher || '—'}</span>
+                <div className="card-pitchers">
+                  <div className="pitcher-row">
+                    <span className="pitcher-label">W</span>
+                    <span className="pitcher-value">{game.winningPitcher || '—'}</span>
+                  </div>
+                  <div className="pitcher-row">
+                    <span className="pitcher-label">L</span>
+                    <span className="pitcher-value">{game.losingPitcher || '—'}</span>
+                  </div>
+                  <div className="pitcher-row">
+                    <span className="pitcher-label">SV</span>
+                    <span className="pitcher-value">{game.savePitcher || '—'}</span>
+                  </div>
                 </div>
               </>
             )}
