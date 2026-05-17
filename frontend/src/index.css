@@ -503,7 +503,7 @@ body {
   font-weight: 600;
   color: var(--text-muted);
   letter-spacing: 0.04em;
-  width: 42px;
+  white-space: nowrap;
   flex-shrink: 0;
 }
 
