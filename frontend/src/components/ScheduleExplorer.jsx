@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 
-
 const US_COLOR   = 'var(--teal-dim)'
 const THEM_COLOR = '#dc2626'
+
 const AFFILIATES = {
   '146':  { name: 'Miami Marlins',                 level: 'Major League Baseball' },
   '564':  { name: 'Jacksonville Jumbo Shrimp',     level: 'Triple-A'              },
@@ -52,121 +52,106 @@ function BaseDiamond({ runners = [] }) {
   )
 }
 
-function GameCard({ teamId, data }) {
+function GameCard({ teamId, game, gameNum, totalGames }) {
   const affiliate = AFFILIATES[teamId]
-  const name  = data?.teamName  || affiliate?.name  || `Team ${teamId}`
-  const level = data?.level     || affiliate?.level || ''
-
-  const entries = Array.isArray(data) ? data : (data && Object.keys(data).length ? [data] : null)
+  const name  = game?.teamName  || affiliate?.name  || `Team ${teamId}`
+  const level = game?.level     || affiliate?.level || ''
 
   return (
     <div className="team-card">
       <div className="card-header">
         <div className="card-header-left">
           <div className="card-team-name">{name}</div>
-          <div className="card-level">{level}</div>
+          <div className="card-level">{level}{gameNum ? ` · Game ${gameNum} of ${totalGames}` : ''}</div>
         </div>
-        {entries && <StateBadge state={entries[0].state} />}
+        {game && <StateBadge state={game.state} />}
       </div>
 
-      {!entries ? (
-        <div className="card-body">
-          <span className="card-no-game">No game scheduled</span>
-        </div>
-      ) : (
-        entries.map((game, i) => (
-          <div key={i} className="card-body">
-            {i > 0 && <div className="card-divider" />}
-            {entries.length > 1 && (
-              <div className="game-number">Game {i + 1} of {entries.length}</div>
-            )}
+      <div className="card-body">
+        {game.state === 'Completed' && (
+          <>
+            <div className="card-score">
+              <span style={{ color: US_COLOR }}>{game.finalScore?.us ?? 0}</span>
+              <span className="score-sep">–</span>
+              <span style={{ color: THEM_COLOR }}>{game.finalScore?.them ?? 0}</span>
+            </div>
+            <div className="card-opponent">{game.opponent}</div>
+            <div className="card-parent-club">{game.opponentParentClub || ' '}</div>
+            <div className="card-divider" />
+            <div className="card-pitchers">
+              <div className="pitcher-row">
+                <span className="pitcher-label">W</span>
+                <span className="pitcher-value">{game.winningPitcher || '—'}</span>
+              </div>
+              <div className="pitcher-row">
+                <span className="pitcher-label">L</span>
+                <span className="pitcher-value">{game.losingPitcher || '—'}</span>
+              </div>
+              {game.savePitcher && (
+                <div className="pitcher-row">
+                  <span className="pitcher-label">SV</span>
+                  <span className="pitcher-value">{game.savePitcher}</span>
+                </div>
+              )}
+            </div>
+          </>
+        )}
 
-            {game.state === 'Completed' && (
-              <>
-                <div className="card-score">
-                  <span style={{ color: US_COLOR }}>{game.finalScore?.us ?? 0}</span>
-                  <span className="score-sep">–</span>
-                  <span style={{ color: THEM_COLOR }}>{game.finalScore?.them ?? 0}</span>
-                </div>
-                <div className="card-opponent">{game.opponent}</div>
-                <div className="card-parent-club">{game.opponentParentClub || ' '}</div>
-                <div className="card-divider" />
-                <div className="card-pitchers">
-                  <div className="pitcher-row">
-                    <span className="pitcher-label">W</span>
-                    <span className="pitcher-value">{game.winningPitcher || '—'}</span>
-                  </div>
-                  <div className="pitcher-row">
-                    <span className="pitcher-label">L</span>
-                    <span className="pitcher-value">{game.losingPitcher || '—'}</span>
-                  </div>
-                  {game.savePitcher && (
-                    <div className="pitcher-row">
-                      <span className="pitcher-label">SV</span>
-                      <span className="pitcher-value">{game.savePitcher}</span>
-                    </div>
-                  )}
-                </div>
-              </>
-            )}
+        {game.state === 'Not Started' && (
+          <>
+            <div className="card-opponent">{game.opponent}</div>
+            <div className="card-parent-club">{game.opponentParentClub || ' '}</div>
+            <div className="card-divider" />
+            <div className="card-live-bar">
+              <span className="live-venue">{game.venue}</span>
+              <span className="live-stat">{formatTime(game.gameTime)}</span>
+            </div>
+            <div className="card-divider" />
+            <div className="card-pitchers">
+              <div className="pitcher-row">
+                <span className="pitcher-label">P (us)</span>
+                <span className="pitcher-value">{game.probablePitchers?.us || '—'}</span>
+              </div>
+              <div className="pitcher-row">
+                <span className="pitcher-label">P (them)</span>
+                <span className="pitcher-value">{game.probablePitchers?.them || '—'}</span>
+              </div>
+            </div>
+          </>
+        )}
 
-            {game.state === 'Not Started' && (
-              <>
-                <div className="card-opponent">{game.opponent}</div>
-                <div className="card-parent-club">{game.opponentParentClub || ' '}</div>
-                <div className="card-divider" />
-                <div className="card-live-bar">
-                  <span className="live-venue">{game.venue}</span>
-                  <span className="live-stat">{formatTime(game.gameTime)}</span>
-                </div>
-                <div className="card-divider" />
-                <div className="card-pitchers">
-                  <div className="pitcher-row">
-                    <span className="pitcher-label">P (us)</span>
-                    <span className="pitcher-value">{game.probablePitchers?.us || '—'}</span>
-                  </div>
-                  <div className="pitcher-row">
-                    <span className="pitcher-label">P (them)</span>
-                    <span className="pitcher-value">{game.probablePitchers?.them || '—'}</span>
-                  </div>
-                </div>
-              </>
-            )}
-
-            {game.state === 'In Progress' && (
-              <>
-                <div className="card-score">
-                  <span style={{ color: US_COLOR }}>{game.score?.us ?? 0}</span>
-                  <span className="score-sep">–</span>
-                  <span style={{ color: THEM_COLOR }}>{game.score?.them ?? 0}</span>
-                </div>
-                <div className="card-opponent">{game.opponent}</div>
-                <div className="card-parent-club">{game.opponentParentClub || ' '}</div>
-                <div className="card-divider" />
-                <div className="card-live-bar">
-                  <span className="live-venue">{game.venue}</span>
-                  <div className="live-indicators">
-                    <span className="live-stat">{game.inningHalf === 'Bottom' ? '↓' : '↑'}{game.inning}</span>
-                    <span className="live-stat">{[0,1,2].map(i => i < game.outs ? '●' : '○').join('')}</span>
-                    <BaseDiamond runners={game.runnersOnBase} />
-                  </div>
-                </div>
-                <div className="card-divider" />
-                <div className="card-pitchers">
-                  <div className="pitcher-row">
-                    <span className="pitcher-label">P</span>
-                    <span className="pitcher-value">{game.currentPitcher || '—'}</span>
-                  </div>
-                  <div className="pitcher-row">
-                    <span className="pitcher-label">AB</span>
-                    <span className="pitcher-value">{game.currentBatter || '—'}</span>
-                  </div>
-                </div>
-              </>
-            )}
-          </div>
-        ))
-      )}
+        {game.state === 'In Progress' && (
+          <>
+            <div className="card-score">
+              <span style={{ color: US_COLOR }}>{game.score?.us ?? 0}</span>
+              <span className="score-sep">–</span>
+              <span style={{ color: THEM_COLOR }}>{game.score?.them ?? 0}</span>
+            </div>
+            <div className="card-opponent">{game.opponent}</div>
+            <div className="card-parent-club">{game.opponentParentClub || ' '}</div>
+            <div className="card-divider" />
+            <div className="card-live-bar">
+              <span className="live-venue">{game.venue}</span>
+              <div className="live-indicators">
+                <span className="live-stat">{game.inningHalf === 'Bottom' ? '↓' : '↑'}{game.inning}</span>
+                <span className="live-stat">{[0,1,2].map(i => i < game.outs ? '●' : '○').join('')}</span>
+                <BaseDiamond runners={game.runnersOnBase} />
+              </div>
+            </div>
+            <div className="card-divider" />
+            <div className="card-pitchers">
+              <div className="pitcher-row">
+                <span className="pitcher-label">P</span>
+                <span className="pitcher-value">{game.currentPitcher || '—'}</span>
+              </div>
+              <div className="pitcher-row">
+                <span className="pitcher-label">AB</span>
+                <span className="pitcher-value">{game.currentBatter || '—'}</span>
+              </div>
+            </div>
+          </>
+        )}
+      </div>
     </div>
   )
 }
@@ -204,22 +189,31 @@ export default function ScheduleExplorer() {
   const ordered     = data ? DISPLAY_ORDER.map(id => [id, data[id]]) : []
   const withoutGame = ordered.filter(([, v]) => !v || Object.keys(v).length === 0)
 
-  const getState = (v) => {
-    if (!v || Object.keys(v).length === 0) return null
-    return Array.isArray(v) ? v[0].state : v.state
-  }
+  const expanded = ordered
+    .filter(([, v]) => v && Object.keys(v).length > 0)
+    .flatMap(([id, v]) =>
+      Array.isArray(v)
+        ? v.map((game, i) => ({ teamId: id, game, gameNum: i + 1, totalGames: v.length }))
+        : [{ teamId: id, game: v, gameNum: null, totalGames: null }]
+    )
 
-  const inProgress  = ordered.filter(([, v]) => getState(v) === 'In Progress')
-  const notStarted  = ordered.filter(([, v]) => getState(v) === 'Not Started')
-  const completed   = ordered.filter(([, v]) => getState(v) === 'Completed')
-  const hasGames    = inProgress.length + notStarted.length + completed.length > 0
+  const inProgress = expanded.filter(e => e.game.state === 'In Progress')
+  const notStarted = expanded.filter(e => e.game.state === 'Not Started')
+  const completed  = expanded.filter(e => e.game.state === 'Completed')
+  const hasGames   = inProgress.length + notStarted.length + completed.length > 0
 
   const GameGroup = ({ label, entries }) => entries.length === 0 ? null : (
     <div className="game-group">
       <div className="game-group-label">{label}</div>
       <div className="cards-grid">
-        {entries.map(([id, game]) => (
-          <GameCard key={id} teamId={id} data={game} />
+        {entries.map(({ teamId, game, gameNum, totalGames }) => (
+          <GameCard
+            key={`${teamId}-${gameNum ?? 0}`}
+            teamId={teamId}
+            game={game}
+            gameNum={gameNum}
+            totalGames={totalGames}
+          />
         ))}
       </div>
     </div>
