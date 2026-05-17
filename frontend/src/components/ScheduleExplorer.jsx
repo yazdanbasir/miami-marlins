@@ -115,10 +115,9 @@ function GameCard({ teamId, data }) {
                 <div className="card-opponent">{game.opponent}</div>
                 <div className="card-parent-club">{game.opponentParentClub || ' '}</div>
                 <div className="card-divider" />
-                <div className="card-meta-row">
-                  <span>{formatTime(game.gameTime)}</span>
-                  <span className="meta-sep">·</span>
-                  <span>{game.venue}</span>
+                <div className="card-live-bar">
+                  <span className="live-venue">{game.venue}</span>
+                  <span className="live-stat">{formatTime(game.gameTime)}</span>
                 </div>
                 <div className="card-divider" />
                 <div className="card-pitchers">
