@@ -13,9 +13,8 @@ export default function App() {
   return (
     <div className="app-wrapper">
       <header className="app-header">
-        <span className="header-title"><span>MIA</span> · Schedule</span>
+        <span className="header-title"><span>MIA</span></span>
         <img src={marlinsLogo} alt="Miami Marlins" className="header-logo" />
-        <div className="header-spacer" />
         <nav className="tab-nav">
           {TABS.map(tab => (
             <button
