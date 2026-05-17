@@ -81,12 +81,12 @@ function GameCard({ teamId, data }) {
             {game.state === 'Completed' && (
               <>
                 <div className="card-score">
-                  <span className={game.finalScore.us > game.finalScore.them ? 'score-win' : 'score-loss'}>
-                    {game.finalScore.us}
+                  <span className={(game.finalScore?.us ?? 0) > (game.finalScore?.them ?? 0) ? 'score-win' : 'score-loss'}>
+                    {game.finalScore?.us ?? 0}
                   </span>
                   <span className="score-sep">–</span>
-                  <span className={game.finalScore.them > game.finalScore.us ? 'score-win' : 'score-loss'}>
-                    {game.finalScore.them}
+                  <span className={(game.finalScore?.them ?? 0) > (game.finalScore?.us ?? 0) ? 'score-win' : 'score-loss'}>
+                    {game.finalScore?.them ?? 0}
                   </span>
                 </div>
                 <div className="card-opponent">{game.opponent}</div>
@@ -101,10 +101,12 @@ function GameCard({ teamId, data }) {
                     <span className="pitcher-label">L</span>
                     <span className="pitcher-value">{game.losingPitcher || '—'}</span>
                   </div>
-                  <div className="pitcher-row">
-                    <span className="pitcher-label">SV</span>
-                    <span className="pitcher-value">{game.savePitcher || '—'}</span>
-                  </div>
+                  {game.savePitcher && (
+                    <div className="pitcher-row">
+                      <span className="pitcher-label">SV</span>
+                      <span className="pitcher-value">{game.savePitcher}</span>
+                    </div>
+                  )}
                 </div>
               </>
             )}
@@ -136,12 +138,12 @@ function GameCard({ teamId, data }) {
             {game.state === 'In Progress' && (
               <>
                 <div className="card-score">
-                  <span className={game.score.us > game.score.them ? 'score-win' : 'score-loss'}>
-                    {game.score.us}
+                  <span className={(game.score?.us ?? 0) > (game.score?.them ?? 0) ? 'score-win' : 'score-loss'}>
+                    {game.score?.us ?? 0}
                   </span>
                   <span className="score-sep">–</span>
-                  <span className={game.score.them > game.score.us ? 'score-win' : 'score-loss'}>
-                    {game.score.them}
+                  <span className={(game.score?.them ?? 0) > (game.score?.us ?? 0) ? 'score-win' : 'score-loss'}>
+                    {game.score?.them ?? 0}
                   </span>
                 </div>
                 <div className="card-opponent">{game.opponent}</div>
