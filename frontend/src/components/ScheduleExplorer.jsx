@@ -202,9 +202,29 @@ export default function ScheduleExplorer() {
     debounceRef.current = setTimeout(() => load(d), 300)
   }
 
-  const ordered    = data ? DISPLAY_ORDER.map(id => [id, data[id]]) : []
-  const withGame   = ordered.filter(([, v]) => v && Object.keys(v).length > 0)
+  const ordered     = data ? DISPLAY_ORDER.map(id => [id, data[id]]) : []
   const withoutGame = ordered.filter(([, v]) => !v || Object.keys(v).length === 0)
+
+  const getState = (v) => {
+    if (!v || Object.keys(v).length === 0) return null
+    return Array.isArray(v) ? v[0].state : v.state
+  }
+
+  const inProgress  = ordered.filter(([, v]) => getState(v) === 'In Progress')
+  const notStarted  = ordered.filter(([, v]) => getState(v) === 'Not Started')
+  const completed   = ordered.filter(([, v]) => getState(v) === 'Completed')
+  const hasGames    = inProgress.length + notStarted.length + completed.length > 0
+
+  const GameGroup = ({ label, entries }) => entries.length === 0 ? null : (
+    <div className="game-group">
+      <div className="game-group-label">{label}</div>
+      <div className="cards-grid">
+        {entries.map(([id, game]) => (
+          <GameCard key={id} teamId={id} data={game} />
+        ))}
+      </div>
+    </div>
+  )
 
   return (
     <div>
@@ -218,7 +238,7 @@ export default function ScheduleExplorer() {
           onChange={handleDateChange}
         />
         <button className="load-btn" onClick={() => load(date)} disabled={loading}>
-          {loading ? '↻' : '↻'}
+          ↻
         </button>
         {loading && <span className="loading-text">Loading…</span>}
         {error && <span className="error-text">Error: {error}</span>}
@@ -226,15 +246,13 @@ export default function ScheduleExplorer() {
 
       {data && (
         <>
-          {withGame.length > 0 ? (
-            <div className="cards-grid">
-              {withGame.map(([id, game]) => (
-                <GameCard key={id} teamId={id} data={game} />
-              ))}
-            </div>
-          ) : (
+          {!hasGames && (
             <div className="no-games-today">No games scheduled for this date.</div>
           )}
+
+          <GameGroup label="In Progress" entries={inProgress} />
+          <GameGroup label="Not Started" entries={notStarted} />
+          <GameGroup label="Completed"   entries={completed} />
 
           {withoutGame.length > 0 && (
             <div className="off-today">

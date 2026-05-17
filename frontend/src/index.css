@@ -343,6 +343,21 @@ body {
 .loading-text { font-size: 13px; color: var(--text-muted); }
 .error-text   { font-size: 13px; color: #dc2626; }
 
+.game-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.game-group-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
 .cards-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
