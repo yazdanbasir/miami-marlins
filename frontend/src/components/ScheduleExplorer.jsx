@@ -1,4 +1,20 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
+
+const AFFILIATES = {
+  '146':  { name: 'Miami Marlins',                 level: 'Major League Baseball' },
+  '564':  { name: 'Jacksonville Jumbo Shrimp',     level: 'Triple-A'              },
+  '4124': { name: 'Pensacola Blue Wahoos',          level: 'Double-A'              },
+  '554':  { name: 'Beloit Sky Carp',               level: 'High-A'                },
+  '479':  { name: 'Jupiter Hammerheads',            level: 'Single-A'              },
+  '467':  { name: 'FCL Marlins',                   level: 'Rookie'                },
+  '619':  { name: 'DSL Marlins',                   level: 'Rookie'                },
+  '2127': { name: 'DSL Miami',                     level: 'Rookie'                },
+  '385':  { name: 'Miami Marlins Prospects',        level: 'Minor League Baseball' },
+  '3276': { name: 'Marlins Alt. Training Site',    level: 'Minor League Baseball' },
+  '3277': { name: 'Marlins Organization',          level: 'Minor League Baseball' },
+}
+
+const DISPLAY_ORDER = ['146','564','4124','554','479','467','619','2127','385','3276','3277']
 
 function today() {
   return new Date().toISOString().slice(0, 10)
@@ -11,131 +27,147 @@ function formatTime(iso) {
   })
 }
 
-function Val({ v }) {
-  if (v === null || v === undefined) return <span className="card-value null">—</span>
-  return <span className="card-value">{String(v)}</span>
-}
-
-function MonoVal({ v }) {
-  if (v === null || v === undefined) return <span className="card-value null">—</span>
-  return <span className="card-value mono">{String(v)}</span>
-}
-
-function Row({ label, children }) {
-  return (
-    <div className="card-row">
-      <span className="card-label">{label}</span>
-      {children}
-    </div>
-  )
-}
-
 function StateBadge({ state }) {
-  if (!state) return <span className="state-badge no-game">No Game</span>
+  if (!state) return null
   const cls = state === 'Not Started' ? 'not-started'
             : state === 'In Progress' ? 'in-progress'
             : 'completed'
   return <span className={`state-badge ${cls}`}>{state}</span>
 }
 
-function ScoreDisplay({ us, them }) {
-  const weWon = us > them
+function BaseDiamond({ runners = [] }) {
+  const on = (base) => runners.includes(base)
   return (
-    <div className="score-display">
-      <span className={weWon ? 'win' : 'loss'}>{us}</span>
-      {' – '}
-      <span className={!weWon ? 'win' : 'loss'}>{them}</span>
+    <div className="base-diamond">
+      <div className="base-row"><div className={`base ${on('second') ? 'on' : ''}`} /></div>
+      <div className="base-row">
+        <div className={`base ${on('third') ? 'on' : ''}`} />
+        <div className="base-gap" />
+        <div className={`base ${on('first') ? 'on' : ''}`} />
+      </div>
     </div>
   )
 }
 
 function GameCard({ teamId, data }) {
-  if (!data || Object.keys(data).length === 0) {
-    return (
-      <div className="team-card">
-        <div className="card-header">
-          <div>
-            <div className="card-team-name" style={{ color: 'var(--text-muted)' }}>Team {teamId}</div>
-          </div>
-          <StateBadge state={null} />
-        </div>
-        <div className="card-body">
-          <span className="card-no-game">No game scheduled</span>
-        </div>
-      </div>
-    )
-  }
+  const affiliate = AFFILIATES[teamId]
+  const name  = data?.teamName  || affiliate?.name  || `Team ${teamId}`
+  const level = data?.level     || affiliate?.level || ''
 
-  const entries = Array.isArray(data) ? data : [data]
+  const entries = Array.isArray(data) ? data : (data && Object.keys(data).length ? [data] : null)
 
   return (
     <div className="team-card">
       <div className="card-header">
-        <div>
-          <div className="card-team-name">{entries[0].teamName}</div>
-          <div className="card-level">{entries[0].level}</div>
+        <div className="card-header-left">
+          <div className="card-team-name">{name}</div>
+          <div className="card-level">{level}</div>
         </div>
-        <StateBadge state={entries[0].state} />
+        {entries && <StateBadge state={entries[0].state} />}
       </div>
 
-      {entries.map((game, i) => (
-        <div key={i} className="card-body">
-          {i > 0 && <div className="divider" style={{ marginBottom: 8 }} />}
-          {entries.length > 1 && (
-            <Row label="Game"><span className="card-value">#{i + 1} of {entries.length}</span></Row>
-          )}
-
-          {game.state === 'Not Started' && (
-            <>
-              <Row label="Time"><Val v={formatTime(game.gameTime)} /></Row>
-              <Row label="Venue"><Val v={game.venue} /></Row>
-              <Row label="Opponent"><Val v={game.opponent} /></Row>
-              {game.opponentParentClub && (
-                <Row label="Parent Club"><Val v={game.opponentParentClub} /></Row>
-              )}
-              <div className="divider" />
-              <Row label="Probable (Us)"><Val v={game.probablePitchers?.us} /></Row>
-              <Row label="Probable (Them)"><Val v={game.probablePitchers?.them} /></Row>
-            </>
-          )}
-
-          {game.state === 'In Progress' && (
-            <>
-              <ScoreDisplay us={game.score?.us} them={game.score?.them} />
-              <Row label="Inning"><MonoVal v={`${game.inningHalf} ${game.inning}`} /></Row>
-              <Row label="Outs"><MonoVal v={game.outs} /></Row>
-              <Row label="Runners">
-                <span className="card-value">
-                  {game.runnersOnBase?.length ? game.runnersOnBase.join(', ') : 'Bases empty'}
-                </span>
-              </Row>
-              <div className="divider" />
-              <Row label="Venue"><Val v={game.venue} /></Row>
-              <Row label="Opponent"><Val v={game.opponent} /></Row>
-              {game.opponentParentClub && (
-                <Row label="Parent Club"><Val v={game.opponentParentClub} /></Row>
-              )}
-              <div className="divider" />
-              <Row label="Pitcher"><Val v={game.currentPitcher} /></Row>
-              <Row label="Batter"><Val v={game.currentBatter} /></Row>
-            </>
-          )}
-
-          {game.state === 'Completed' && (
-            <>
-              <ScoreDisplay us={game.finalScore?.us} them={game.finalScore?.them} />
-              <Row label="Opponent"><Val v={game.opponent} /></Row>
-              {game.opponentParentClub && (
-                <Row label="Parent Club"><Val v={game.opponentParentClub} /></Row>
-              )}
-              <div className="divider" />
-              <Row label="W"><Val v={game.winningPitcher} /></Row>
-              <Row label="L"><Val v={game.losingPitcher} /></Row>
-              <Row label="SV"><Val v={game.savePitcher} /></Row>
-            </>
-          )}
+      {!entries ? (
+        <div className="card-body">
+          <span className="card-no-game">No game scheduled</span>
         </div>
-      ))}
+      ) : (
+        entries.map((game, i) => (
+          <div key={i} className="card-body">
+            {i > 0 && <div className="card-divider" />}
+            {entries.length > 1 && (
+              <div className="game-number">Game {i + 1} of {entries.length}</div>
+            )}
+
+            {game.state === 'Completed' && (
+              <>
+                <div className="card-score">
+                  <span className={game.finalScore.us > game.finalScore.them ? 'score-win' : 'score-loss'}>
+                    {game.finalScore.us}
+                  </span>
+                  <span className="score-sep">–</span>
+                  <span className={game.finalScore.them > game.finalScore.us ? 'score-win' : 'score-loss'}>
+                    {game.finalScore.them}
+                  </span>
+                </div>
+                <div className="card-opponent">{game.opponent}</div>
+                <div className="card-parent-club">{game.opponentParentClub || ' '}</div>
+                <div className="card-divider" />
+                <div className="card-decisions">
+                  <span className="decision-label">W</span>
+                  <span className="decision-value">{game.winningPitcher || '—'}</span>
+                  <span className="decision-label">L</span>
+                  <span className="decision-value">{game.losingPitcher || '—'}</span>
+                  <span className="decision-label">SV</span>
+                  <span className="decision-value">{game.savePitcher || '—'}</span>
+                </div>
+              </>
+            )}
+
+            {game.state === 'Not Started' && (
+              <>
+                <div className="card-opponent">{game.opponent}</div>
+                <div className="card-parent-club">{game.opponentParentClub || ' '}</div>
+                <div className="card-divider" />
+                <div className="card-meta-row">
+                  <span>{formatTime(game.gameTime)}</span>
+                  <span className="meta-sep">·</span>
+                  <span>{game.venue}</span>
+                </div>
+                <div className="card-divider" />
+                <div className="card-pitchers">
+                  <div className="pitcher-row">
+                    <span className="pitcher-label">P (us)</span>
+                    <span className="pitcher-value">{game.probablePitchers?.us || '—'}</span>
+                  </div>
+                  <div className="pitcher-row">
+                    <span className="pitcher-label">P (them)</span>
+                    <span className="pitcher-value">{game.probablePitchers?.them || '—'}</span>
+                  </div>
+                </div>
+              </>
+            )}
+
+            {game.state === 'In Progress' && (
+              <>
+                <div className="card-score">
+                  <span className={game.score.us > game.score.them ? 'score-win' : 'score-loss'}>
+                    {game.score.us}
+                  </span>
+                  <span className="score-sep">–</span>
+                  <span className={game.score.them > game.score.us ? 'score-win' : 'score-loss'}>
+                    {game.score.them}
+                  </span>
+                </div>
+                <div className="card-situation">
+                  <div className="situation-text">
+                    <span>{game.inningHalf === 'Bottom' ? 'Bot' : 'Top'} {game.inning}</span>
+                    <span className="meta-sep">·</span>
+                    <span>{game.outs} {game.outs === 1 ? 'out' : 'outs'}</span>
+                  </div>
+                  <BaseDiamond runners={game.runnersOnBase} />
+                </div>
+                <div className="card-divider" />
+                <div className="card-meta-row">
+                  <span>{game.opponent}</span>
+                  <span className="meta-sep">·</span>
+                  <span>{game.venue}</span>
+                </div>
+                <div className="card-divider" />
+                <div className="card-pitchers">
+                  <div className="pitcher-row">
+                    <span className="pitcher-label">P</span>
+                    <span className="pitcher-value">{game.currentPitcher || '—'}</span>
+                  </div>
+                  <div className="pitcher-row">
+                    <span className="pitcher-label">AB</span>
+                    <span className="pitcher-value">{game.currentBatter || '—'}</span>
+                  </div>
+                </div>
+              </>
+            )}
+          </div>
+        ))
+      )}
     </div>
   )
 }
@@ -145,6 +177,7 @@ export default function ScheduleExplorer() {
   const [data, setData]       = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError]     = useState(null)
+  const debounceRef           = useRef(null)
 
   async function load(d) {
     setLoading(true)
@@ -162,7 +195,16 @@ export default function ScheduleExplorer() {
 
   useEffect(() => { load(date) }, [])
 
-  function handleLoad() { load(date) }
+  function handleDateChange(e) {
+    const d = e.target.value
+    setDate(d)
+    clearTimeout(debounceRef.current)
+    debounceRef.current = setTimeout(() => load(d), 300)
+  }
+
+  const ordered    = data ? DISPLAY_ORDER.map(id => [id, data[id]]) : []
+  const withGame   = ordered.filter(([, v]) => v && Object.keys(v).length > 0)
+  const withoutGame = ordered.filter(([, v]) => !v || Object.keys(v).length === 0)
 
   return (
     <div>
@@ -173,21 +215,39 @@ export default function ScheduleExplorer() {
           type="date"
           className="date-input"
           value={date}
-          onChange={e => setDate(e.target.value)}
+          onChange={handleDateChange}
         />
-        <button className="load-btn" onClick={handleLoad} disabled={loading}>
-          {loading ? 'Loading…' : 'Load'}
+        <button className="load-btn" onClick={() => load(date)} disabled={loading}>
+          {loading ? '↻' : '↻'}
         </button>
-        {loading && <span className="loading-text">Fetching schedule…</span>}
-        {error && <span style={{ fontSize: 13, color: '#dc2626' }}>Error: {error}</span>}
+        {loading && <span className="loading-text">Loading…</span>}
+        {error && <span className="error-text">Error: {error}</span>}
       </div>
 
       {data && (
-        <div className="cards-grid">
-          {Object.entries(data).map(([teamId, game]) => (
-            <GameCard key={teamId} teamId={teamId} data={game} />
-          ))}
-        </div>
+        <>
+          {withGame.length > 0 ? (
+            <div className="cards-grid">
+              {withGame.map(([id, game]) => (
+                <GameCard key={id} teamId={id} data={game} />
+              ))}
+            </div>
+          ) : (
+            <div className="no-games-today">No games scheduled for this date.</div>
+          )}
+
+          {withoutGame.length > 0 && (
+            <div className="off-today">
+              <span className="off-today-label">Off today</span>
+              {withoutGame.map(([id], i) => (
+                <span key={id}>
+                  {i > 0 && <span className="off-today-sep">·</span>}
+                  {AFFILIATES[id]?.name || `Team ${id}`}
+                </span>
+              ))}
+            </div>
+          )}
+        </>
       )}
     </div>
   )
