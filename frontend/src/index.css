@@ -435,8 +435,6 @@ body {
   gap: 10px;
 }
 
-.score-win  { color: var(--teal-dim); }
-.score-loss { color: #dc2626; }
 .score-sep  { color: var(--text-muted); font-size: 20px; }
 
 /* Opponent */

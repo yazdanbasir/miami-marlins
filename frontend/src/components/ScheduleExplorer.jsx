@@ -1,5 +1,9 @@
 import { useState, useEffect, useRef } from 'react'
 
+
+function scoreColor(a, b) {
+  return a > b ? 'var(--teal-dim)' : a < b ? '#dc2626' : 'var(--text)'
+}
 const AFFILIATES = {
   '146':  { name: 'Miami Marlins',                 level: 'Major League Baseball' },
   '564':  { name: 'Jacksonville Jumbo Shrimp',     level: 'Triple-A'              },
@@ -81,13 +85,9 @@ function GameCard({ teamId, data }) {
             {game.state === 'Completed' && (
               <>
                 <div className="card-score">
-                  <span className={(game.finalScore?.us ?? 0) > (game.finalScore?.them ?? 0) ? 'score-win' : 'score-loss'}>
-                    {game.finalScore?.us ?? 0}
-                  </span>
+                  <span style={{ color: scoreColor(game.finalScore?.us ?? 0, game.finalScore?.them ?? 0) }}>{game.finalScore?.us ?? 0}</span>
                   <span className="score-sep">–</span>
-                  <span className={(game.finalScore?.them ?? 0) > (game.finalScore?.us ?? 0) ? 'score-win' : 'score-loss'}>
-                    {game.finalScore?.them ?? 0}
-                  </span>
+                  <span style={{ color: scoreColor(game.finalScore?.them ?? 0, game.finalScore?.us ?? 0) }}>{game.finalScore?.them ?? 0}</span>
                 </div>
                 <div className="card-opponent">{game.opponent}</div>
                 <div className="card-parent-club">{game.opponentParentClub || ' '}</div>
@@ -138,13 +138,9 @@ function GameCard({ teamId, data }) {
             {game.state === 'In Progress' && (
               <>
                 <div className="card-score">
-                  <span className={(game.score?.us ?? 0) > (game.score?.them ?? 0) ? 'score-win' : 'score-loss'}>
-                    {game.score?.us ?? 0}
-                  </span>
+                  <span style={{ color: scoreColor(game.score?.us ?? 0, game.score?.them ?? 0) }}>{game.score?.us ?? 0}</span>
                   <span className="score-sep">–</span>
-                  <span className={(game.score?.them ?? 0) > (game.score?.us ?? 0) ? 'score-win' : 'score-loss'}>
-                    {game.score?.them ?? 0}
-                  </span>
+                  <span style={{ color: scoreColor(game.score?.them ?? 0, game.score?.us ?? 0) }}>{game.score?.them ?? 0}</span>
                 </div>
                 <div className="card-opponent">{game.opponent}</div>
                 <div className="card-parent-club">{game.opponentParentClub || ' '}</div>
