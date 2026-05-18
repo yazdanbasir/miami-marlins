@@ -64,3 +64,14 @@ The In Progress game state is fully implemented in `app.py` (`buildInProgress`) 
 
 - **Impossible date (T10)** — added `datetime.strptime` validation after the regex check; impossible calendar dates like month 13 now return a clean 422 instead of passing through to the MLB API
 - **Doubleheaders (T23)** — `indexGamesByTeam` now uses `setdefault` + `append` instead of overwrite, and sorts by `gameNumber`; contract is `{}` no game, `{...}` one game, `[{...},{...}]` doubleheader
+
+## Step 8 — Project restructured
+
+Reorganized all files into a clean folder structure before adding the frontend: `backend/` (FastAPI service), `data/` (SQLite DB and source JSON), `scripts/` (utility scripts), `frontend/` (React app), `files/` (docs and notes). All relative DB paths updated accordingly.
+
+## Step 9 — React frontend built
+
+Built a React + Vite SPA at `http://localhost:2003` with two sections:
+
+- **API Reference** — documents the `/schedule` endpoint with a two-panel layout: field list on the left, syntax-highlighted JSON example on the right, tabbed by game state
+- **Schedule Explorer** — date picker (auto-loads on change) that fetches from the backend and displays all 11 affiliates grouped by game state (In Progress → Not Started → Completed), with a compact "Off today" strip for teams without a game
