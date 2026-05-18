@@ -63,7 +63,14 @@ body {
 
 .header-title span { color: var(--teal); }
 
-.header-logo  { height: 28px; width: auto; }
+.header-logo  { height: 28px; width: auto; justify-self: end; }
+
+.header-center {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: #9ca3af;
+  letter-spacing: 0.02em;
+}
 .tab-nav { display: flex; gap: 2px; justify-content: flex-end; }
 
 .tab-btn {
